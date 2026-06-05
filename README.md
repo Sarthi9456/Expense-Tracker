@@ -19,3 +19,15 @@ This project provides:
 
 - Backend: `cd backend && npm install && npm run dev`
 - Frontend: `cd frontend && npm install && npm run dev`
+
+## Deployment
+
+See `DEPLOYMENT.md` for step-by-step instructions to deploy the frontend on Vercel and the backend with a MongoDB host.
+
+## Vercel Monorepo Configuration
+
+This repository now includes `vercel.json` to deploy both apps from the root:
+
+- Frontend: `frontend`
+- Backend: `backend`
+- Backend routes are exposed under `/_/backend`
