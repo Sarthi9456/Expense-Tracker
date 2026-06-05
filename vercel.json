@@ -1,5 +1,4 @@
 {
-  "name": "expense-tracker",
   "experimentalServices": {
     "frontend": {
       "root": "frontend",
@@ -9,7 +8,7 @@
     "backend": {
       "root": "backend",
       "routePrefix": "/_/backend",
-      "framework": "nodejs",
+      "builder": "@vercel/node",
       "entrypoint": "src/server.js"
     }
   }
