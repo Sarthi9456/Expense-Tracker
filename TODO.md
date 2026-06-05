@@ -1,0 +1,10 @@
+- [ ] Scaffold backend (Node.js + Express) with MongoDB (Mongoose)
+- [ ] Implement authentication (JWT) and user model
+- [ ] Implement expense CRUD (Add/Edit/Delete) with ownership per user
+- [ ] Implement monthly report aggregation
+- [ ] Implement export reports (CSV)
+- [ ] Scaffold frontend (React) with routing and authenticated API client
+- [ ] Implement expense UI (list/add/edit/delete)
+- [ ] Implement charts (pie + graphs) using a chart library
+- [ ] Implement monthly report UI and export download
+- [ ] Add README with setup + run instructions
