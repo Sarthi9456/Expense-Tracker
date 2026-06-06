@@ -2,10 +2,10 @@ const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
+const mongoose = require('mongoose');
 
 dotenv.config();
 
-const { connectMongo } = require('./utils/connectMongo');
 const authRoutes = require('./routes/auth');
 const expenseRoutes = require('./routes/expenses');
 const reportRoutes = require('./routes/reports');
@@ -29,7 +29,34 @@ app.use(cors({
 app.use(express.json({ limit: '1mb' }));
 app.use(morgan('dev'));
 
-app.get('/health', (req, res) => res.json({ ok: true }));
+// Connect to MongoDB - cached for serverless
+let isConnected = false;
+
+async function connectDB() {
+  if (isConnected && mongoose.connection.readyState === 1) return;
+  
+  mongoose.set('strictQuery', true);
+  await mongoose.connect(process.env.MONGODB_URI, {
+    serverSelectionTimeoutMS: 30000,
+    socketTimeoutMS: 30000,
+    connectTimeoutMS: 30000,
+  });
+  isConnected = true;
+  console.log('MongoDB connected');
+}
+
+// Connect before every request
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error('DB connection error:', err.message);
+    res.status(500).json({ message: 'Database connection failed: ' + err.message });
+  }
+});
+
+app.get('/health', (req, res) => res.json({ ok: true, db: mongoose.connection.readyState }));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/expenses', expenseRoutes);
@@ -41,17 +68,6 @@ app.use((req, res) => res.status(404).json({ message: 'Route not found' }));
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(err.status || 500).json({ message: err.message || 'Internal server error' });
-});
-
-// Connect to MongoDB once (cached for serverless)
-let connected = false;
-const originalListen = app.listen.bind(app);
-app.use(async (req, res, next) => {
-  if (!connected) {
-    await connectMongo();
-    connected = true;
-  }
-  next();
 });
 
 module.exports = app;
