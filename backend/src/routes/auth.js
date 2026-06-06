@@ -7,12 +7,15 @@ const User = require('../models/User');
 
 const router = express.Router();
 
+// Wrap async handlers so errors propagate to Express error middleware
+const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
+
 const registerSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
 });
 
-router.post('/register', async (req, res) => {
+router.post('/register', wrap(async (req, res) => {
   const parsed = registerSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ message: 'Invalid input', issues: parsed.error.issues });
 
@@ -29,10 +32,11 @@ router.post('/register', async (req, res) => {
   });
 
   return res.status(201).json({ token, user: { id: user._id, email: user.email } });
-});
+}));
 
 const loginSchema = registerSchema;
-router.post('/login', async (req, res) => {
+
+router.post('/login', wrap(async (req, res) => {
   const parsed = loginSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ message: 'Invalid input', issues: parsed.error.issues });
 
@@ -48,12 +52,10 @@ router.post('/login', async (req, res) => {
   });
 
   return res.json({ token, user: { id: user._id, email: user.email } });
-});
+}));
 
-router.get('/me', async (req, res) => {
-  // optional endpoint can be implemented by frontend decoding token; kept simple here
+router.get('/me', (req, res) => {
   return res.json({ message: 'Use JWT auth with /api/* endpoints' });
 });
 
 module.exports = router;
-
