@@ -15,8 +15,8 @@ the brief — see **Next Steps** for thoughts on this.
 
 ## Live Demo Links
 
-- **Frontend (app):** https://expense-tracker-frontend-ebon-chi.vercel.app
-- **Backend (API):** https://expense-tracker-backend-eight-psi.vercel.app
+- **Frontend (app):** https://expense-tracker-frontend-v2.vercel.app
+- **Backend (API):** https://expense-tracker-backend-v2.vercel.app
 
 You can register a new account on the live site and start adding expenses immediately.
 
