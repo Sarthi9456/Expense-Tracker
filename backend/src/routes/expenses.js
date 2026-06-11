@@ -11,20 +11,34 @@ router.use(requireAuth);
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 
 const expenseSchema = z.object({
-  amount: z.number().positive(),
-  category: z.string().min(1),
-  date: z.string().refine((s) => !Number.isNaN(Date.parse(s)), 'Invalid date'),
+  amount: z.number().positive('Amount must be a positive number'),
+  category: z.string().min(1, 'Category is required'),
+  date: z
+    .string()
+    .refine((s) => !Number.isNaN(Date.parse(s)), 'Invalid date')
+    .refine((s) => {
+      // Reject dates more than 1 day in the future (allows for timezone slack)
+      const d = new Date(s);
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(0, 0, 0, 0);
+      return d < tomorrow;
+    }, 'Date cannot be in the future'),
   description: z.string().optional().default(''),
 });
 
 router.get('/', wrap(async (req, res) => {
-  const { from, to } = req.query;
+  const { from, to, category } = req.query;
   const filter = { userId: req.user.id };
 
   if (from || to) {
     filter.date = {};
     if (from) filter.date.$gte = new Date(from);
     if (to) filter.date.$lt = new Date(to);
+  }
+
+  if (category && category !== 'All') {
+    filter.category = category;
   }
 
   const expenses = await Expense.find(filter).sort({ date: -1, createdAt: -1 });

@@ -31,7 +31,9 @@ router.get('/monthly', wrap(async (req, res) => {
     byCategory[e.category] = (byCategory[e.category] || 0) + e.amount;
   }
 
-  res.json({ total, byCategory, expensesCount: expenses.length });
+  const highest = expenses.reduce((max, e) => (e.amount > (max?.amount || 0) ? e : max), null);
+
+  res.json({ total, byCategory, expensesCount: expenses.length, highest });
 }));
 
 router.get('/export/csv', wrap(async (req, res) => {
