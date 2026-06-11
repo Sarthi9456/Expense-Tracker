@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import api from '../api/axios';
+import { formatCurrency } from '../utils/format';
 import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import Box from '@mui/material/Box';
@@ -141,9 +142,14 @@ export default function Reports() {
             <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { xs: '1fr', md: '1fr 360px' } }}>
               <Paper sx={{ p: 3 }} elevation={2}>
                 <Typography variant="h4" color="primary" gutterBottom>
-                  ${data.total.toFixed(2)}
+                  {formatCurrency(data.total)}
                 </Typography>
                 <Typography sx={{ mb: 1 }}>Expenses count: {data.expensesCount}</Typography>
+                {data.highest && (
+                  <Typography sx={{ mb: 1 }}>
+                    Highest expense: {formatCurrency(data.highest.amount)} ({data.highest.category})
+                  </Typography>
+                )}
                 <Typography variant="subtitle1" gutterBottom>
                   Category breakdown
                 </Typography>
@@ -155,7 +161,7 @@ export default function Reports() {
                       .sort((a, b) => b[1] - a[1])
                       .map(([category, amount]) => (
                         <Box component="li" key={category} sx={{ mb: 1 }}>
-                          <strong>{category}</strong>: ${amount.toFixed(2)}
+                          <strong>{category}</strong>: {formatCurrency(amount)}
                         </Box>
                       ))
                   )}
